@@ -1,3 +1,4 @@
+
 name: Build APK Final
 on: [push]
 
@@ -32,17 +33,17 @@ jobs:
           mkdir -p dist
           if [ ! -f "dist/index.html" ]; then echo "<html></html>" > dist/index.html; fi
 
-      - name: Capacitor and Android Setup
+      - name: Capacitor Setup
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap init "King TV" com.kingtv.app --web-dir dist
           npx cap add android
-          # Este paso actualiza las librerías conflictivas automáticamente
-          npx cap update android
 
-      - name: Build APK Final
+      - name: Fix Duplicate Classes and Build
         run: |
           cd android
+          # Esta línea mágica soluciona el error de "Duplicate class" que viste
+          echo "configurations.all { exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8' }" >> build.gradle
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
