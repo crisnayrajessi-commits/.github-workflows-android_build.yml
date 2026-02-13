@@ -36,7 +36,7 @@ jobs:
       - name: Capacitor Setup
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "King TV" com.kingtv.app --web-dir dist --confirm
+          npx cap init "King TV" com.kingtv.app --web-dir dist
           npx cap add android
           npx cap copy android
 
@@ -44,7 +44,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace --no-daemon
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
