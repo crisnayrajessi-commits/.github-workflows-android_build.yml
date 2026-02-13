@@ -1,4 +1,3 @@
-
 name: Build APK Final
 on: [push]
 
@@ -33,18 +32,19 @@ jobs:
           mkdir -p dist
           if [ ! -f "dist/index.html" ]; then echo "<html></html>" > dist/index.html; fi
 
-      - name: Capacitor Setup
+      - name: Capacitor and Android Setup
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap init "King TV" com.kingtv.app --web-dir dist
           npx cap add android
+          # Este paso actualiza las librerías conflictivas automáticamente
+          npx cap update android
 
-      - name: Build APK (Force Mode)
+      - name: Build APK Final
         run: |
           cd android
           chmod +x gradlew
-          # Forzamos a que ignore los conflictos de resolución que viste en las fotos
-          ./gradlew assembleDebug --no-daemon -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
