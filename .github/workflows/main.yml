@@ -39,11 +39,17 @@ jobs:
           npx cap init "King TV" com.kingtv.app --web-dir dist
           npx cap add android
 
-      - name: Fix Duplicate Classes and Build
+      - name: Fix Duplicate Classes
+        run: |
+          # Esta es la parte clave: forzamos a Gradle a usar una sola versión de Kotlin
+          cd android/app
+          echo "configurations.all { resolutionStrategy.force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10' }" >> build.gradle
+          echo "configurations.all { exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8' }" >> build.gradle
+          echo "configurations.all { exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7' }" >> build.gradle
+
+      - name: Final Build APK
         run: |
           cd android
-          # Esta línea mágica soluciona el error de "Duplicate class" que viste
-          echo "configurations.all { exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8' }" >> build.gradle
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
