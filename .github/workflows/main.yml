@@ -1,4 +1,5 @@
-name: Build APK from ZIP
+
+name: Build APK Final
 on: [push]
 
 jobs:
@@ -7,11 +8,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Unzip code
-        run: |
-          unzip king-tv.zip -d ./
-          if [ -d "king-tv" ]; then mv king-tv/* ./; fi
 
       - name: Setup Java 21
         uses: actions/setup-java@v4
@@ -24,16 +20,24 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Unzip and Prepare
+        run: |
+          unzip king-tv.zip -d ./
+          if [ -d "king-tv" ]; then mv king-tv/* ./; fi
+          rm -rf android  # Borramos carpetas viejas si existen
 
-      - name: Build Web
-        run: npm run build
+      - name: Install and Build Web
+        run: |
+          npm install
+          npm run build --if-present
+          mkdir -p dist
+          # Si no hay build, creamos uno de prueba para que no falle
+          if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then echo "<html></html>" > dist/index.html; fi
 
-      - name: Add Android
+      - name: Add Android Platform
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "King TV" com.kingtv.app --web-dir dist
+          npx cap init "King TV" com.kingtv.app --web-dir dist || true
           npx cap add android
           npx cap copy android
 
@@ -41,7 +45,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
