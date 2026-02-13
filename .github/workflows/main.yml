@@ -9,11 +9,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 21
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '17'
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -38,9 +38,8 @@ jobs:
           npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap init "King TV" com.kingtv.app --web-dir dist
           npx cap add android
-          npx cap copy android
 
-      - name: Build Final APK
+      - name: Final Build APK
         run: |
           cd android
           chmod +x gradlew
